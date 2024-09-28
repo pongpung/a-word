@@ -10,10 +10,17 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column; /* Change to column to stack header and quiz */
             align-items: center;
             height: 100vh;
             background-color: #f4f4f4;
+        }
+        .header {
+            font-size: 24px;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #333;
         }
         .quiz-container {
             background: #fff;
@@ -82,9 +89,15 @@
             font-size: 20px;
             font-weight: bold;
         }
+        #remaining {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #555;
+        }
     </style>
 </head>
 <body>
+<div class="header">Made by Zami</div> <!-- Header for attribution -->
 
 <div class="quiz-container">
     <div id="result"></div>
