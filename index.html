@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .quiz-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        .quiz-header {
+            margin-bottom: 20px;
+        }
+        .quiz-header h2 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .quiz-options button {
+            margin: 5px 0;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .quiz-options button:hover {
+            background-color: #0056b3;
+        }
+        .next-button {
+            display: none;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .restart-button {
+            display: none;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #ffc107;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #sentence {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #555;
+        }
+        #finalScore {
+            margin-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="result"></div>
+    <div id="remaining"></div> <!-- Show remaining questions -->
+    <div id="sentence"></div>
+    <div id="finalScore"></div>
+    
+    <div class="quiz-header">
+        <h2 id="word">Word</h2>
+    </div>
+    <div class="quiz-options">
+        <button class="option" onclick="checkAnswer(this)">Option 1</button>
+        <button class="option" onclick="checkAnswer(this)">Option 2</button>
+        <button class="option" onclick="checkAnswer(this)">Option 3</button>
+        <button class="option" onclick="checkAnswer(this)">Option 4</button>
+    </div>
+    <button class="next-button" onclick="nextQuestion()">Next</button>
+    <button class="restart-button" onclick="restartQuiz()">Restart Quiz</button>
+</div>
+
+
+<script>
+const words = [
+    { word: "ABASH", definition: "to embarrass", options: ["to praise", "to embarrass", "to ignore", "to celebrate"], sentence: "Meredith felt abashed by her inability to remember her lines in the school chorus of 'Old McDonald Had a Farm.'" },
+    { word: "ABATE", definition: "to subside", options: ["to intensify", "to subside", "to increase", "to start"], sentence: "The storm suddenly abated after hours of heavy rain." },
+    { word: "ABDICATE", definition: "to step down from power", options: ["to inherit", "to seize", "to step down from power", "to reign"], sentence: "The king abdicated his throne in favor of his son." },
+    { word: "ABERRATION", definition: "deviation", options: ["normality", "deviation", "routine", "expectation"], sentence: "The sudden snowstorm in April was an aberration from the usual weather patterns." },
+    { word: "ABHOR", definition: "to detest", options: ["to love", "to detest", "to admire", "to enjoy"], sentence: "He abhors violence and always advocates for peaceful solutions." },
+    { word: "ABJECT", definition: "hopeless", options: ["hopeful", "successful", "hopeless", "joyful"], sentence: "Living in abject poverty, the family struggled to make ends meet." },
+    { word: "ABNEGATE", definition: "to renounce", options: ["to accept", "to renounce", "to embrace", "to promote"], sentence: "He chose to abnegate the luxurious lifestyle he once enjoyed to live modestly." },
+    { word: "ABORTIVE", definition: "unsuccessful", options: ["successful", "unsuccessful", "completed", "achieved"], sentence: "Their abortive attempt to climb the mountain ended when the weather turned bad." },
+    { word: "ABRIDGE", definition: "to shorten", options: ["to lengthen", "to expand", "to shorten", "to elaborate"], sentence: "The editor abridged the novel to make it more suitable for young readers." },
+    { word: "ABSOLUTE", definition: "total", options: ["partial", "total", "minimal", "nominal"], sentence: "The CEO had absolute control over the company's decisions." },
+    { word: "ABSOLVE", definition: "to forgive", options: ["to blame", "to forgive", "to accuse", "to hold accountable"], sentence: "The priest absolved her of her sins." },
+    { word: "ABSTINENT", definition: "voluntarily avoiding", options: ["indulging", "voluntarily avoiding", "seeking", "embracing"], sentence: "He has been abstinent from alcohol for five years." },
+    { word: "ABSTRACT", definition: "theoretical", options: ["practical", "theoretical", "concrete", "factual"], sentence: "Her thesis dealt with abstract concepts that were difficult to grasp." },
+    { word: "ABSTRUSE", definition: "hard to understand", options: ["clear", "obvious", "hard to understand", "simple"], sentence: "The professor's lecture on quantum mechanics was abstruse to most of the students." },
+    { word: "ABYSMAL", definition: "wretched", options: ["excellent", "wretched", "satisfactory", "impressive"], sentence: "The living conditions in the refugee camp were abysmal." },
+    { word: "ACCOLADE", definition: "award", options: ["criticism", "award", "punishment", "neglect"], sentence: "She received the highest accolade for her groundbreaking research." },
+    { word: "ACCOST", definition: "to approach", options: ["to ignore", "to avoid", "to approach", "to evade"], sentence: "A stranger accosted me on the street, asking for directions." },
+    { word: "ACERBIC", definition: "sour", options: ["sweet", "sour", "pleasant", "bland"], sentence: "His acerbic wit often left people feeling hurt." },
+    { word: "ACQUIESCE", definition: "to comply", options: ["to resist", "to protest", "to comply", "to object"], sentence: "Despite her misgivings, she acquiesced to the committee's decision." },
+    { word: "ACRID", definition: "harsh", options: ["mild", "harsh", "sweet", "gentle"], sentence: "The acrid smell of smoke filled the room." },
+    { word: "ACRIMONIOUS", definition: "bitter", options: ["friendly", "bitter", "peaceful", "cordial"], sentence: "The debate between the candidates became acrimonious as the election day approached." },
+    { word: "ACUMEN", definition: "mental sharpness", options: ["ignorance", "mental sharpness", "confusion", "dullness"], sentence: "Her business acumen helped her turn the small startup into a major corporation." },
+    { word: "ADULATION", definition: "wild admiration", options: ["criticism", "indifference", "wild admiration", "disapproval"], sentence: "The rock star basked in the adulation of his fans." },
+    { word: "ADAMANT", definition: "unyielding", options: ["flexible", "unyielding", "compromising", "weak"], sentence: "She was adamant about not changing her travel plans despite the bad weather." },
+    { word: "ADDRESS", definition: "to speak to", options: ["to ignore", "to avoid", "to speak to", "to neglect"], sentence: "The president addressed the nation in a televised broadcast." },
+    { word: "ADHERENT", definition: "follower", options: ["leader", "follower", "opponent", "rival"], sentence: "He is an adherent of the new political movement." },
+    { word: "ADMONISH", definition: "to scold gently", options: ["to praise", "to scold gently", "to ignore", "to celebrate"], sentence: "The teacher admonished the student for being late but didn’t punish him." },
+    { word: "ADROIT", definition: "skillful", options: ["clumsy", "awkward", "skillful", "inept"], sentence: "He was adroit at avoiding awkward questions during the interview." },
+    { word: "ADULTERATE", definition: "to contaminate", options: ["to purify", "to contaminate", "to improve", "to cleanse"], sentence: "The company was accused of adulterating its products with harmful substances." },
+     { word: "ADVERSE", definition: "unfavorable", options: ["favorable", "unfavorable", "beneficial", "positive"], sentence: "The adverse weather conditions delayed the flight." },
+    { word: "AVERSIVE", definition: "opposed to", options: ["friendly", "opposed to", "agreeable", "welcoming"], sentence: "She was averse to the idea of moving to a new city." },
+    { word: "AESTHETIC", definition: "artistic", options: ["unpleasant", "artistic", "clumsy", "abstract"], sentence: "The aesthetic design of the building attracted many visitors." },
+    { word: "AFFABLE", definition: "friendly", options: ["rude", "hostile", "friendly", "arrogant"], sentence: "The affable waiter made us feel welcome at the restaurant." },
+    { word: "AFFECTATION", definition: "unnatural behavior", options: ["naturalness", "genuineness", "unnatural behavior", "authenticity"], sentence: "Her affectation of sophistication was transparent to everyone." },
+    { word: "AFFINITY", definition: "sympathy", options: ["dislike", "hatred", "sympathy", "indifference"], sentence: "She felt a strong affinity for animals and often volunteered at shelters." },
+    { word: "AFFLUENT", definition: "rich", options: ["poor", "rich", "indigent", "destitute"], sentence: "The affluent neighborhood had large houses and manicured lawns." },
+    { word: "AGENDA", definition: "program", options: ["schedule", "plan", "program", "strategy"], sentence: "The agenda for the meeting included several important topics." },
+    { word: "AGGREGATE", definition: "sum total", options: ["individual", "sum total", "partial", "fractional"], sentence: "The aggregate of their scores determined the winning team." },
+    { word: "CONGREGATE", definition: "get together", options: ["to separate", "to gather", "to scatter", "get together"], sentence: "Students congregated in the courtyard during lunch." },
+    { word: "SEGREGATE", definition: "keep apart", options: ["to unite", "to integrate", "keep apart", "to join"], sentence: "The law sought to segregate public facilities by race." },
+    
+    
+    
+     { word: "AGNOSTIC", definition: "someone unconvinced about the existence of a god", options: ["atheist", "believer", "someone unconvinced about the existence of a god", "zealot"], sentence: "He identified as agnostic, saying he didn’t know whether God existed or not." },
+    { word: "AGRARIAN", definition: "relating to land", options: ["urban", "industrial", "relating to land", "technological"], sentence: "The country has a largely agrarian economy, dependent on farming." },
+    { word: "ALACRITY", definition: "cheerful eagerness", options: ["reluctance", "apathy", "cheerful eagerness", "hesitation"], sentence: "She accepted the job offer with alacrity, excited to start her new role." },
+    { word: "ALLEGE", definition: "to assert", options: ["to prove", "to claim", "to assert", "to question"], sentence: "The witness alleged that she saw the suspect at the scene of the crime." },
+    { word: "ALLEVIATE", definition: "to relieve", options: ["to worsen", "to aggravate", "to relieve", "to increase"], sentence: "The medication helped alleviate her chronic pain." },
+    { word: "ALLOCATE", definition: "to distribute", options: ["to hoard", "to misuse", "to distribute", "to withdraw"], sentence: "The government allocated funds for disaster relief." },
+    { word: "ALLOY", definition: "combination of metals", options: ["mixture", "element", "combination of metals", "single metal"], sentence: "Bronze is an alloy made from copper and tin." },
+    { word: "ALLUSION", definition: "an indirect reference", options: ["a direct statement", "a clear explanation", "an indirect reference", "a misinterpretation"], sentence: "Her speech contained an allusion to Shakespeare’s 'Romeo and Juliet.'" },
+    { word: "ALOOF", definition: "standoffish", options: ["friendly", "approachable", "standoffish", "sociable"], sentence: "She remained aloof during the meeting, hardly engaging with anyone." },
+    { word: "ALTRUISM", definition: "generosity", options: ["selfishness", "generosity", "greed", "indifference"], sentence: "His altruism was evident when he donated all his winnings to charity." },
+    { word: "AMBIENCE", definition: "atmosphere", options: ["environment", "mood", "atmosphere", "structure"], sentence: "The restaurant’s candlelit ambience made it a perfect place for a romantic dinner." },
+    { word: "AMBIGUOUS", definition: "confusing", options: ["clear", "definite", "confusing", "obvious"], sentence: "Her ambiguous instructions left us unsure of what to do." },
+    { word: "AMBIVALENT", definition: "undecided", options: ["decisive", "certain", "undecided", "sure"], sentence: "He was ambivalent about whether to take the new job, unsure if it was the right move." },
+    { word: "AMELIORATE", definition: "to make better", options: ["to worsen", "to deteriorate", "to make better", "to ignore"], sentence: "The new policy was designed to ameliorate the effects of the economic crisis." },
+    { word: "AMENABLE", definition: "obedient", options: ["stubborn", "rebellious", "obedient", "uncooperative"], sentence: "The children were amenable to the teacher’s instructions and followed the rules." },
+    { word: "AMENITY", definition: "pleasantness", options: ["discomfort", "inconvenience", "pleasantness", "dullness"], sentence: "The hotel’s amenities, including a spa and pool, made the stay very enjoyable." },
+    { word: "AMIABLE", definition: "friendly", options: ["hostile", "unfriendly", "friendly", "antagonistic"], sentence: "Her amiable personality made her a favorite among her coworkers." },
+    { word: "AMICABLE", definition: "politely friendly", options: ["hostile", "contentious", "politely friendly", "argumentative"], sentence: "Their divorce was amicable, with no hard feelings on either side." },
+    { word: "AMNESTY", definition: "official pardon", options: ["punishment", "official pardon", "verdict", "condemnation"], sentence: "The government granted amnesty to the political prisoners." },
+    { word: "AMORAL", definition: "without moral feeling", options: ["ethical", "moral", "without moral feeling", "righteous"], sentence: "The corporation's amoral behavior led to widespread public criticism." },
+    { word: "AMOROUS", definition: "feeling loving", options: ["indifferent", "feeling loving", "cold", "disinterested"], sentence: "The couple exchanged amorous glances throughout the evening." },
+    { word: "AMORPHOUS", definition: "shapeless", options: ["defined", "structured", "shapeless", "geometric"], sentence: "The amorphous cloud slowly drifted across the sky." },
+    { word: "ANACHRONISM", definition: "incongruity", options: ["consistency", "incongruity", "harmony", "relevance"], sentence: "The sword in the modern-day scene was an anachronism." },
+    { word: "ANALOGY", definition: "comparison", options: ["contrast", "opposition", "comparison", "division"], sentence: "He made an analogy between the growth of the company and the blooming of a flower." },
+    { word: "ANARCHY", definition: "lawlessness", options: ["order", "lawfulness", "lawlessness", "peace"], sentence: "After the government's collapse, the country descended into anarchy." },
+    { word: "MONARCHY", definition: "government by king or queen", options: ["democracy", "dictatorship", "government by king or queen", "republic"], sentence: "The monarchy was abolished, and a democratic government was established." },
+    { word: "ANECDOTE", definition: "amusing account", options: ["lecture", "amusing account", "dissertation", "biography"], sentence: "He shared a humorous anecdote from his childhood at the dinner table." },
+    { word: "ANGUISH", definition: "agonizing pain", options: ["joy", "bliss", "agonizing pain", "contentment"], sentence: "Her anguish over the loss of her pet was evident in her tear-filled eyes." },
+    { word: "ANIMOSITY", definition: "resentment", options: ["friendliness", "sympathy", "resentment", "affection"], sentence: "There was a palpable animosity between the rival teams during the match." },
+    { word: "ANOMALY", definition: "irregularity", options: ["normalcy", "regularity", "irregularity", "standard"], sentence: "The test results revealed an anomaly that required further investigation." },
+    { word: "ANTECEDENT", definition: "what went before", options: ["result", "consequence", "what went before", "subsequent"], sentence: "The antecedent events led to the eventual outbreak of war." },
+    { word: "ANTIPATHY", definition: "firm dislike", options: ["affection", "admiration", "firm dislike", "love"], sentence: "He had a deep antipathy towards dishonesty." },
+    { word: "ANTITHESIS", definition: "direct opposite", options: ["synonym", "direct opposite", "similarity", "analogy"], sentence: "His carefree attitude was the antithesis of her strict discipline." },
+    { word: "APARTHEID", definition: "racial oppression", options: ["racial harmony", "racial oppression", "segregation", "equality"], sentence: "The regime was known for its brutal enforcement of apartheid policies." },
+    { word: "APATHY", definition: "lack of interest", options: ["enthusiasm", "excitement", "lack of interest", "engagement"], sentence: "The student's apathy towards the project was evident in his lack of participation." },
+    { word: "APHORISM", definition: "witty saying", options: ["essay", "lecture", "witty saying", "paradox"], sentence: "Benjamin Franklin is known for his many aphorisms, such as 'An ounce of prevention is worth a pound of cure.'" },
+    { word: "APOCALYPSE", definition: "prophetic revelation", options: ["secret", "prophecy", "prophetic revelation", "vision"], sentence: "Some people believe the apocalypse will mark the end of human civilization." },
+    { word: "APOCRYPHAL", definition: "of dubious authenticity", options: ["genuine", "authentic", "of dubious authenticity", "proven"], sentence: "The apocryphal story about the haunted house intrigued many, even though it was likely untrue." },
+    { word: "APOTHEOSIS", definition: "the perfect example", options: ["the worst case", "the perfect example", "the failure", "the deviation"], sentence: "His performance was the apotheosis of artistic expression." },
+    { word: "APPEASE", definition: "to soothe", options: ["to provoke", "to annoy", "to soothe", "to irritate"], sentence: "The manager tried to appease the angry customers with discounts." },
+    { word: "APPRECIATE", definition: "increase in value", options: ["decrease in value", "increase in value", "remain the same", "decline"], sentence: "Investments in the stock market can appreciate over time." },
+    { word: "DEPRECIATE", definition: "decrease in value", options: ["increase in value", "decrease in value", "stay constant", "grow"], sentence: "The value of the car began to depreciate once it was driven off the lot." },
+    { word: "APPREHENSIVE", definition: "worried", options: ["confident", "anxious", "worried", "fearless"], sentence: "She felt apprehensive about the upcoming exam." },
+    { word: "MISAPPREHENSION", definition: "misunderstanding", options: ["clarity", "misinterpretation", "misunderstanding", "insight"], sentence: "His statement led to a misapprehension of his true intentions." },
+    { word: "APPROBATION", definition: "approval", options: ["disapproval", "approval", "criticism", "rejection"], sentence: "The proposal received the committee's approbation." },
+    { word: "APPROPRIATE", definition: "take without permission", options: ["borrow", "take without permission", "share", "give"], sentence: "He was accused of trying to appropriate funds from the charity." },
+    { word: "MISAPPROPRIATE", definition: "misuse public money", options: ["use wisely", "misuse public money", "spend responsibly", "invest"], sentence: "The politician was charged with misappropriating public funds." },
+    { word: "EXPROPRIATE", definition: "take property officially", options: ["give back", "take property officially", "return", "relinquish"], sentence: "The government has the right to expropriate land for public use." },
+    { word: "APTITUDE", definition: "natural ability", options: ["inability", "natural ability", "disinterest", "apathy"], sentence: "Her aptitude for mathematics was evident from a young age." },
+    { word: "ARBITER", definition: "judge", options: ["mediator", "judge", "defendant", "prosecutor"], sentence: "The arbiter made a fair decision in the dispute." },
+    { word: "ARBITRATE", definition: "weigh opposing views", options: ["decide unilaterally", "weigh opposing views", "take sides", "dismiss"], sentence: "They agreed to arbitrate their differences to avoid a lengthy court battle." },
+    { word: "ARBITRARY", definition: "random", options: ["systematic", "random", "planned", "predictable"], sentence: "The rules seemed arbitrary and unfair to the players." },
+    { word: "ARCANE", definition: "mysterious", options: ["obvious", "known", "mysterious", "clear"], sentence: "The professor's lectures were filled with arcane knowledge." },
+    { word: "ARCHAIC", definition: "extremely old", options: ["modern", "current", "extremely old", "recent"], sentence: "The archaic text was difficult for the students to understand." },
+    { word: "ARCHETYPE", definition: "original model", options: ["copy", "replica", "original model", "variation"], sentence: "The hero is an archetype found in many stories." },
+    { word: "ARDENT", definition: "passionate", options: ["indifferent", "passionate", "apathetic", "dispassionate"], sentence: "She was an ardent supporter of environmental conservation." },
+    { word: "ARDUOUS", definition: "difficult", options: ["easy", "simple", "difficult", "manageable"], sentence: "Climbing the mountain was an arduous task." },
+    { word: "ARISTOCRATIC", definition: "of noble birth", options: ["common", "ordinary", "of noble birth", "peasant"], sentence: "He came from an aristocratic family." },
+    { word: "ARTFUL", definition: "crafty", options: ["clumsy", "artless", "crafty", "awkward"], sentence: "The artful negotiation led to a favorable outcome." },
+    { word: "ARTIFICE", definition: "trickery", options: ["honesty", "deception", "trickery", "transparency"], sentence: "The magician's artifice left the audience in awe." },
+    { word: "ASCENDANCY", definition: "supremacy", options: ["defeat", "dominance", "supremacy", "inferiority"], sentence: "The company established its ascendancy in the market." },
+    { word: "ASCETIC", definition: "hermitlike", options: ["lavish", "hermitlike", "indulgent", "extravagant"], sentence: "He lived an ascetic lifestyle, renouncing all comforts." },
+    { word: "ASSIDUOUS", definition: "hardworking", options: ["lazy", "negligent", "hardworking", "careless"], sentence: "Her assiduous efforts were rewarded with success." },
+    { word: "ASSIMILATE", definition: "absorb", options: ["ignore", "absorb", "reject", "disregard"], sentence: "It took time for the new immigrants to assimilate into the culture." },
+    { word: "ASSUAGE", definition: "soothe", options: ["to irritate", "to intensify", "soothe", "to aggravate"], sentence: "He tried to assuage her fears with comforting words." },
+    { word: "ASTUTE", definition: "shrewd", options: ["naive", "shrewd", "foolish", "simple"], sentence: "Her astute observations helped the team improve their strategy." },
+    { word: "ATTRITION", definition: "gradual wearing away", options: ["growth", "accumulation", "gradual wearing away", "development"], sentence: "The company faced attrition in its workforce due to layoffs." },
+    { word: "AUDACITY", definition: "boldness", options: ["timidity", "fearfulness", "boldness", "caution"], sentence: "He had the audacity to challenge the status quo." },
+    { word: "AUGMENT", definition: "make bigger", options: ["reduce", "diminish", "make bigger", "decrease"], sentence: "They plan to augment their income with a side business." },
+    { word: "AUSPICIOUS", definition: "favorable", options: ["unfortunate", "ominous", "favorable", "unlucky"], sentence: "The sunny weather made for an auspicious start to the wedding." },
+    { word: "AUSTERE", definition: "unadorned", options: ["lavish", "extravagant", "unadorned", "ornate"], sentence: "The room was furnished in an austere style." },
+    { word: "AUTOCRATIC", definition: "extremely bossy", options: ["democratic", "cooperative", "extremely bossy", "collaborative"], sentence: "His autocratic leadership style alienated many of his team members." },
+    { word: "AUTONOMOUS", definition: "acting independently", options: ["dependent", "controlled", "acting independently", "subservient"], sentence: "The autonomous vehicle drove itself without human intervention." },
+    { word: "AVARICE", definition: "greed", options: ["generosity", "kindness", "greed", "altruism"], sentence: "His avarice led him to betray his friends for wealth." },
+    { word: "AVOW", definition: "claim", options: ["deny", "reject", "claim", "disclaim"], sentence: "She avowed her loyalty to the organization." },
+    { word: "AVUNCULAR", definition: "like an uncle", options: ["distant", "strange", "like an uncle", "antagonistic"], sentence: "His avuncular demeanor made him well-liked among the children." },
+    { word: "AWRY", definition: "off course", options: ["on track", "aligned", "off course", "correct"], sentence: "The plan went awry when the main speaker canceled." },
+    { word: "AXIOM", definition: "self-evident truth", options: ["conjecture", "self-evident truth", "hypothesis", "theory"], sentence: "The statement was regarded as an axiom in the field of mathematics." },
+    // Add more words following this format
+];
+
+
+let currentQuestion = 0;
+let score = 0;
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    }
+}
+
+function shuffleQuestionsAndOptions() {
+    shuffle(words); // Shuffle the question order
+    words.forEach(word => {
+        shuffle(word.options); // Shuffle the options for each question
+    });
+}
+
+function loadQuestion() {
+    document.getElementById("word").innerText = words[currentQuestion].word;
+    const options = document.querySelectorAll(".option");
+    words[currentQuestion].options.forEach((option, index) => {
+        options[index].innerText = option;
+    });
+    document.getElementById("sentence").innerText = ""; // Clear previous sentence
+    document.getElementById("remaining").innerText = `Questions remaining: ${words.length - currentQuestion - 1}`;
+}
+
+function checkAnswer(button) {
+    const isCorrect = button.innerText === words[currentQuestion].definition;
+
+    const resultDiv = document.getElementById("result");
+    const sentenceDiv = document.getElementById("sentence");
+
+    if (isCorrect) {
+        resultDiv.innerText = "Correct!";
+        resultDiv.style.color = "green";
+        score++;
+    } else {
+        resultDiv.innerText = "Incorrect. The correct answer is: " + words[currentQuestion].definition;
+        resultDiv.style.color = "red";
+        score -= 0.25; // Deduct 0.25 points for wrong answer
+    }
+
+    sentenceDiv.innerText = "Example sentence: " + words[currentQuestion].sentence;
+
+    document.querySelector(".next-button").style.display = "block";
+}
+
+function nextQuestion() {
+    currentQuestion++;
+    document.getElementById("result").innerText = ""; // Reset result message
+
+    if (currentQuestion < words.length) {
+        loadQuestion();
+        document.querySelector(".next-button").style.display = "none";
+    } else {
+        showFinalScore();
+    }
+}
+
+function showFinalScore() {
+    document.querySelector(".quiz-options").style.display = "none";
+    document.querySelector(".next-button").style.display = "none";
+    document.querySelector(".restart-button").style.display = "block";
+    document.getElementById("finalScore").innerText = "Quiz completed! Your score: " + score.toFixed(2) + "/" + words.length;
+}
+
+function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    document.getElementById("result").innerText = "";
+    document.getElementById("finalScore").innerText = "";
+    document.querySelector(".quiz-options").style.display = "flex";
+    document.querySelector(".next-button").style.display = "none";
+    document.querySelector(".restart-button").style.display = "none";
+    shuffleQuestionsAndOptions(); // Shuffle questions and options on restart
+    loadQuestion();
+}
+
+// Load questions and options when the window loads
+window.onload = function() {
+    shuffleQuestionsAndOptions();
+    loadQuestion();
+};
+</script>
+</body>
+</html>
